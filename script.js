@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// 1. Configuración de tu App
 const firebaseConfig = {
   apiKey: "AIzaSyD0PZK3Prt5CufdQyBOTrsGFPxYzt0l_XU",
   authDomain: "ghost-chat-an0nimous.firebaseapp.com",
@@ -12,53 +11,68 @@ const firebaseConfig = {
   appId: "1:611834273169:web:f4a23d0bfb22fe1f7a0e30"
 };
 
-// 2. Inicialización
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const dbRef = ref(db, 'mensajes');
 let usuarioActual = "";
 
-// --- NUEVO: Sonido de notificación ---
 const sonidoNotificacion = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
-// 3. Lógica de Ingreso
+// ENTRAR AL CHAT
 document.getElementById('btn-entrar').addEventListener('click', () => {
-    const username = document.getElementById('username').value;
-    if (username.trim() !== "") {
-        usuarioActual = username;
+    const inputUser = document.getElementById('username');
+    if (inputUser.value.trim() !== "") {
+        usuarioActual = inputUser.value;
         document.getElementById('display-name').innerText = usuarioActual.toUpperCase();
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('chat-screen').style.display = 'flex';
-    } else {
-        alert("Por favor, ingresa un apodo.");
     }
 });
 
-// 4. Función Maestra de Envío (Para reusar en botón y tecla Enter)
+// FUNCIÓN DE ENVÍO
 function enviarMensaje() {
-    const input = document.getElementById('message-input');
-    const mensaje = input.value;
+    const inputMsg = document.getElementById('message-input');
+    const texto = inputMsg.value;
 
-    if (mensaje.trim() !== "") {
+    if (texto.trim() !== "" && usuarioActual !== "") {
         push(dbRef, {
             usuario: usuarioActual,
-            texto: mensaje,
+            texto: texto,
             tiempo: Date.now()
         });
-        input.value = "";
+        inputMsg.value = "";
+        inputMsg.focus(); // Mantiene el cursor en el cuadro de texto
     }
 }
 
-// Escuchar clic en el botón
-document.getElementById('btn-enviar').addEventListener('click', enviarMensaje);
+// CLICK EN EL BOTÓN
+document.getElementById('btn-enviar').addEventListener('click', (e) => {
+    e.preventDefault();
+    enviarMensaje();
+});
 
-// --- NUEVO: Escuchar tecla ENTER ---
-document.getElementById('message-input').addEventListener('keypress', (e) => {
+// TECLA ENTER (Solución aquí)
+document.getElementById('message-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
+        e.preventDefault(); // Evita que la página se refresque
         enviarMensaje();
     }
 });
 
-// 5. Recepción de mensajes en tiempo real
+// RECIBIR MENSAJES
 onChildAdded(dbRef, (data) => {
     const msgData = data.val();
+    const chatBox = document.getElementById('chat-box');
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message');
+    
+    if (msgData.usuario === usuarioActual) {
+        msgDiv.classList.add('mine');
+    } else {
+        sonidoNotificacion.play().catch(() => {});
+    }
+
+    msgDiv.innerHTML = `<span class="msg-user">${msgData.usuario}</span>${msgData.texto}`;
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+});
