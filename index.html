@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostChat | Anon Messenger</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="login-screen" class="screen">
+            <div class="terminal-header">GHOST_PROTOCOLO_V1</div>
+            <h2>IDENTIFICACIÓN</h2>
+            <p>Ingresa un apodo para iniciar sesión anónima:</p>
+            <input type="text" id="username" placeholder="Nick / Apodo..." maxlength="15">
+            <button id="btn-entrar" class="cyber-button">ACCEDER AL CANAL</button>
+        </div>
+
+        <div id="chat-screen" class="screen" style="display:none;">
+            <div class="chat-header">
+                <div class="user-info">
+                    <span class="status-dot"></span>
+                    <span id="display-name">ANÓNIMO</span>
+                </div>
+                <button onclick="location.reload()" class="exit-btn">SALIR</button>
+            </div>
+            
+            <div id="chat-box">
+                <div class="msg system">Conexión establecida. Los mensajes son cifrados y temporales.</div>
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
+                <button id="btn-enviar" class="send-btn">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
