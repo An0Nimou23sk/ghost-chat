@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostChat v5.0 | Secure Network</title>
+    <title>GhostChat v5.0 | Private Network</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -18,15 +18,15 @@
     <div id="login-screen" class="screen" style="display: none;">
         <div class="glass-card">
             <h1>GHOST<span>CHAT</span></h1>
-            <p class="tagline">Bienvenido al Protocolo</p>
+            <p class="tagline">Acceso al Protocolo Encriptado</p>
             <div class="input-group">
-                <input type="text" id="username" placeholder="Alias de Agente..." autocomplete="off">
+                <input type="text" id="username" placeholder="Alias de Usuario..." autocomplete="off">
             </div>
             <div class="input-group pass-container">
                 <input type="password" id="chat-key" placeholder="Llave Maestra..." autocomplete="off">
                 <span id="toggle-pass" class="eye-icon">👁️</span>
             </div>
-            <button id="btn-entrar" class="btn-main">INICIAR SESIÓN</button>
+            <button id="btn-entrar" class="btn-main">ESTABLECER CONEXIÓN</button>
         </div>
     </div>
 
@@ -43,14 +43,14 @@
                 <div class="chat-icon">🔐</div>
                 <div class="chat-info">
                     <span class="chat-name"># Sala_Privada_Cifrada</span>
-                    <span class="chat-status">E2EE | Sin Registros</span>
+                    <small>E2EE | Sin registros</small>
                 </div>
             </div>
             <div class="chat-item normal" id="btn-sala-normal">
                 <div class="chat-icon">💬</div>
                 <div class="chat-info">
                     <span class="chat-name"># Canal_Abierto</span>
-                    <span class="chat-status">Comunicación Estándar</span>
+                    <small>Uso Estándar</small>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
         <div class="input-area">
             <label for="file-input" class="btn-file">📎</label>
             <input type="file" id="file-input" hidden accept="image/*,video/*,audio/*">
-            <input type="text" id="message-input" placeholder="Mensaje...">
+            <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
             <button id="btn-enviar">ENVIAR</button>
         </div>
     </div>
@@ -80,16 +80,18 @@
         <div class="config-container glass-card">
             <p>Alias: <span id="conf-nick">--</span></p>
             <p>ID Único: <span id="conf-id">--</span></p>
-            <hr>
+            <hr class="divider">
             <div class="node-routing">
                 <p>Rutas de Descentralización:</p>
-                <small>• Node-A: 185.22.XX (Activo)</small><br>
-                <small>• Node-B: 45.10.XX (Proxy)</small>
+                <small>• Node-A: 185.22.XX.1 (Activo)</small><br>
+                <small>• Node-B: 45.10.XX.5 (Proxy)</small><br>
+                <small>• Node-C: Secure_Gateway</small>
             </div>
-            <hr>
-            <label>Color de Interfaz:</label>
+            <hr class="divider">
+            <label>Color Global:</label>
             <input type="color" id="theme-color-picker">
             <button id="btn-save-config" class="btn-main">GUARDAR CAMBIOS</button>
+            <button id="btn-logout" class="btn-main logout">ELIMINAR SESIÓN</button>
         </div>
     </div>
 
