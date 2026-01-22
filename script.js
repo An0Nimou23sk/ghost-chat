@@ -1,60 +1,114 @@
-:root {
-    --purple: #bc13fe; --blue: #00d2ff; --green: #00ff41; --red: #ff3131;
-    --primary: var(--purple);
-    --bg: #050005;
-    --glass: rgba(15, 0, 15, 0.85);
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD0PZK3Prt5CufdQyBOTrsGFPxYzt0l_XU",
+  authDomain: "ghost-chat-an0nimous.firebaseapp.com",
+  databaseURL: "https://ghost-chat-an0nimous-default-rtdb.firebaseio.com",
+  projectId: "ghost-chat-an0nimous",
+  storageBucket: "ghost-chat-an0nimous.firebasestorage.app",
+  messagingSenderId: "611834273169",
+  appId: "1:611834273169:web:f4a23d0bfb22fe1f7a0e30"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const dbRef = ref(db, 'mensajes');
+
+// Variables Globales
+let user = localStorage.getItem('ghost_user') || "";
+let chatKey = localStorage.getItem('ghost_key') || "";
+let currentTheme = localStorage.getItem('ghost_theme') || "purple";
+
+// Cambiar pantallas
+window.showScreen = (screenId) => {
+    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+    document.getElementById(screenId).style.display = 'flex';
+};
+
+// Cambiar Temas
+window.changeTheme = (color) => {
+    document.body.className = `theme-${color}`;
+    localStorage.setItem('ghost_theme', color);
+};
+
+// Al iniciar, cargar sesión si existe
+if(user && chatKey) {
+    document.getElementById('display-name').innerText = user;
+    changeTheme(currentTheme);
+    showScreen('main-screen');
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
+// Login
+document.getElementById('btn-entrar').onclick = () => {
+    const nick = document.getElementById('username').value;
+    const key = document.getElementById('chat-key').value;
+    if(nick && key) {
+        user = nick; chatKey = key;
+        localStorage.setItem('ghost_user', nick);
+        localStorage.setItem('ghost_key', key);
+        document.getElementById('display-name').innerText = user;
+        showScreen('main-screen');
+    }
+};
 
-body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
+// Configuración
+document.getElementById('btn-config').onclick = () => {
+    document.getElementById('config-username').value = user;
+    // Mostrar Alias Encriptado (SHA256 simulado con MD5 o similar para visual)
+    document.getElementById('encrypted-nick').innerText = CryptoJS.MD5(user).toString().substring(0,16);
+    showScreen('config-screen');
+};
 
-/* Temas dinámicos */
-.theme-blue { --primary: var(--blue); --bg: #000814; --glass: rgba(0, 20, 40, 0.85); }
-.theme-green { --primary: var(--green); --bg: #000800; --glass: rgba(0, 20, 0, 0.85); }
-.theme-red { --primary: var(--red); --bg: #0a0000; --glass: rgba(30, 0, 0, 0.85); }
+document.getElementById('btn-save-config').onclick = () => {
+    user = document.getElementById('config-username').value;
+    localStorage.setItem('ghost_user', user);
+    document.getElementById('display-name').innerText = user;
+    showScreen('main-screen');
+};
 
-#matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.2; }
+// Enviar Mensaje Cifrado
+document.getElementById('btn-enviar').onclick = () => {
+    const text = document.getElementById('message-input').value;
+    if(text) {
+        const encrypted = CryptoJS.AES.encrypt(text, chatKey).toString();
+        push(dbRef, { usuario: user, texto: encrypted, tiempo: Date.now() });
+        document.getElementById('message-input').value = "";
+    }
+};
 
-.screen { height: 100vh; display: flex; flex-direction: column; padding: 20px; }
+// Recibir y Descifrar
+onChildAdded(dbRef, (data) => {
+    const msg = data.val();
+    let decrypted = "";
+    try {
+        const bytes = CryptoJS.AES.decrypt(msg.texto, chatKey);
+        decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        if(!decrypted) decrypted = "[Cifrado: Llave Inválida]";
+    } catch(e) { decrypted = "[Error de Cifrado]"; }
 
-.glass-card {
-    background: var(--glass);
-    border: 1px solid var(--primary);
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(188, 19, 254, 0.2);
-    max-width: 400px; margin: auto; text-align: center;
+    const div = document.createElement('div');
+    div.className = `message ${msg.usuario === user ? 'mine' : 'other'}`;
+    div.innerHTML = `<strong>${msg.usuario}:</strong> <br> ${decrypted}`;
+    document.getElementById('chat-box').appendChild(div);
+    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+});
+
+// Matrix Background (Simplificado)
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+const columns = canvas.width / 15;
+const drops = Array(Math.floor(columns)).fill(1);
+function draw() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary');
+    ctx.font = "15px monospace";
+    drops.forEach((y, i) => {
+        const text = String.fromCharCode(Math.random() * 128);
+        ctx.fillText(text, i * 15, y * 15);
+        if (y * 15 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+    });
 }
-
-h1 { color: var(--primary); text-shadow: 0 0 10px var(--primary); margin-bottom: 10px; }
-
-input {
-    width: 100%; padding: 12px; margin: 10px 0;
-    background: rgba(0,0,0,0.5); border: 1px solid var(--primary);
-    color: #fff; outline: none;
-}
-
-.btn-main {
-    width: 100%; padding: 12px; background: var(--primary);
-    color: #000; border: none; font-weight: bold; cursor: pointer;
-}
-
-/* Chat Styles */
-#chat-box { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; }
-
-.message {
-    max-width: 80%; padding: 10px 15px; margin: 5px 0; border-radius: 5px;
-    font-size: 0.9rem; position: relative;
-}
-.mine { align-self: flex-end; background: var(--primary); color: #000; }
-.other { align-self: flex-start; background: rgba(255,255,255,0.1); border: 1px solid var(--primary); }
-
-.chat-item {
-    background: var(--glass); border: 1px solid var(--primary);
-    padding: 20px; margin-top: 15px; display: flex; justify-content: space-between; cursor: pointer;
-}
-
-.color-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; margin: 5px; }
-.purple { background: var(--purple); } .blue { background: var(--blue); } 
-.green { background: var(--green); } .red { background: var(--red); }
+setInterval(draw, 50);
