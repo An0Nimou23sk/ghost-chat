@@ -17,12 +17,13 @@
 
     <div id="login-screen" class="screen" style="display: none;">
         <div class="glass-card">
-            <h2>BIENVENIDO AL PROTOCOLO</h2>
+            <h1>GHOST<span>CHAT</span></h1>
+            <p class="tagline">Bienvenido al Protocolo</p>
             <div class="input-group">
-                <input type="text" id="username" placeholder="Tu Alias de Agente...">
+                <input type="text" id="username" placeholder="Alias de Agente..." autocomplete="off">
             </div>
-            <div class="input-group pass-group">
-                <input type="password" id="chat-key" placeholder="Llave Maestra...">
+            <div class="input-group pass-container">
+                <input type="password" id="chat-key" placeholder="Llave Maestra..." autocomplete="off">
                 <span id="toggle-pass" class="eye-icon">👁️</span>
             </div>
             <button id="btn-entrar" class="btn-main">INICIAR SESIÓN</button>
@@ -31,21 +32,21 @@
 
     <div id="main-screen" class="screen" style="display: none;">
         <nav class="top-nav">
-            <div class="search-bar">
-                <input type="text" id="search-user" placeholder="Buscar por Alias o ID #...">
+            <div class="search-container">
+                <input type="text" id="search-user" placeholder="Buscar Alias o ID #...">
             </div>
             <button id="btn-config-nav" class="btn-icon">⚙️</button>
         </nav>
         
         <div class="chat-list">
-            <div class="chat-item secure" onclick="enterChat('secure')">
+            <div class="chat-item secure" id="btn-sala-segura">
                 <div class="chat-icon">🔐</div>
                 <div class="chat-info">
                     <span class="chat-name"># Sala_Privada_Cifrada</span>
-                    <span class="chat-status">AES-256 | Sin Registros</span>
+                    <span class="chat-status">E2EE | Sin Registros</span>
                 </div>
             </div>
-            <div class="chat-item normal" onclick="enterChat('normal')">
+            <div class="chat-item normal" id="btn-sala-normal">
                 <div class="chat-icon">💬</div>
                 <div class="chat-info">
                     <span class="chat-name"># Canal_Abierto</span>
@@ -57,67 +58,38 @@
 
     <div id="chat-screen" class="screen" style="display: none;">
         <header class="chat-header">
-            <button onclick="showScreen('main-screen')" class="btn-back"> < </button>
+            <button id="btn-volver" class="btn-back"> < VOLVER</button>
             <div class="chat-title-info">
                 <span id="chat-title">Canal</span>
-                <small id="user-typing-status"></small>
             </div>
         </header>
-
         <div id="chat-box"></div>
-
-        <div class="multimedia-preview" id="media-preview"></div>
-
         <div class="input-area">
             <label for="file-input" class="btn-file">📎</label>
             <input type="file" id="file-input" hidden accept="image/*,video/*,audio/*">
-            <input type="text" id="message-input" placeholder="Escribe un mensaje...">
-            <button id="btn-mic" class="btn-mic">🎤</button>
-            <button id="btn-enviar">></button>
+            <input type="text" id="message-input" placeholder="Mensaje...">
+            <button id="btn-enviar">ENVIAR</button>
         </div>
     </div>
 
     <div id="config-screen" class="screen" style="display: none;">
         <header class="chat-header">
-            <button onclick="showScreen('main-screen')" class="btn-back"> < </button>
-            <h2>AJUSTES_GHOST</h2>
+            <button id="btn-cerrar-config" class="btn-back"> < ATRÁS</button>
+            <h2>AJUSTES</h2>
         </header>
-        <div class="config-container">
-            <div class="user-id-card glass-card">
-                <p>Alias: <span id="conf-nick">--</span></p>
-                <p>ID Único: <span id="conf-id">--</span></p>
+        <div class="config-container glass-card">
+            <p>Alias: <span id="conf-nick">--</span></p>
+            <p>ID Único: <span id="conf-id">--</span></p>
+            <hr>
+            <div class="node-routing">
+                <p>Rutas de Descentralización:</p>
+                <small>• Node-A: 185.22.XX (Activo)</small><br>
+                <small>• Node-B: 45.10.XX (Proxy)</small>
             </div>
-
-            <div class="routing-section glass-card">
-                <h3>Ruta de Descentralización (Nodos IP)</h3>
-                <ul id="node-list">
-                    <li>🟢 Node-A: 192.168.0.X</li>
-                    <li>🟢 Node-B: 45.12.8.X</li>
-                    <li>🟢 Node-C: 102.1.0.X</li>
-                    <li>🟢 Node-D: Encrypted_Node</li>
-                </ul>
-            </div>
-
-            <div class="settings-group glass-card">
-                <h3>Privacidad & Seguridad</h3>
-                <div class="setting-item">
-                    <label>Microfono Activo</label>
-                    <input type="checkbox" id="sett-mic" checked>
-                </div>
-                <div class="setting-item">
-                    <label>Confirmación Lectura</label>
-                    <input type="checkbox" id="sett-read" checked>
-                </div>
-                <div class="setting-item">
-                    <label>Eliminar después de 24hs</label>
-                    <input type="checkbox" id="sett-auto-del">
-                </div>
-            </div>
-
-            <div class="config-group glass-card">
-                <label>Color de Interfaz:</label>
-                <input type="color" id="theme-color-picker">
-            </div>
+            <hr>
+            <label>Color de Interfaz:</label>
+            <input type="color" id="theme-color-picker">
+            <button id="btn-save-config" class="btn-main">GUARDAR CAMBIOS</button>
         </div>
     </div>
 
