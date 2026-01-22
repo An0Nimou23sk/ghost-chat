@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostChat | Anon Messenger</title>
+    <title>GhostChat v2.0 | Secure Messenger</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <div id="login-screen" class="screen">
-            <div class="terminal-header">GHOST_PROTOCOLO_V1</div>
-            <h2>IDENTIFICACIÓN</h2>
-            <p>Ingresa un apodo para iniciar sesión anónima:</p>
-            <input type="text" id="username" placeholder="Nick / Apodo..." maxlength="15">
-            <button id="btn-entrar" class="cyber-button">ACCEDER AL CANAL</button>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>GHOST<span>CHAT</span></h1>
+            <p>Acceso al Protocolo Seguro</p>
+            <input type="text" id="username" placeholder="Ingresa tu Alias..." autocomplete="off">
+            <button id="btn-entrar">ESTABLECER CONEXIÓN</button>
         </div>
+    </div>
 
-        <div id="chat-screen" class="screen" style="display:none;">
-            <div class="chat-header">
-                <div class="user-info">
-                    <span class="status-dot"></span>
-                    <span id="display-name">ANÓNIMO</span>
-                </div>
-                <button onclick="location.reload()" class="exit-btn">SALIR</button>
+    <div id="chat-screen" style="display: none;">
+        <header class="chat-header">
+            <div class="user-info">
+                <div class="online-dot"></div>
+                <span id="display-name">USUARIO</span>
             </div>
-            
-            <div id="chat-box">
-                <div class="msg system">Conexión establecida. Los mensajes son cifrados y temporales.</div>
-            </div>
+            <div class="app-status">ENCRIPTADO</div>
+        </header>
 
-            <div class="input-area">
-                <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
-                <button id="btn-enviar" class="send-btn">➤</button>
-            </div>
+        <div id="chat-box"></div>
+
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Escribe un mensaje cifrado..." autocomplete="off">
+            <button id="btn-enviar">
+                <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg>
+            </button>
         </div>
     </div>
 
