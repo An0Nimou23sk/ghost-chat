@@ -1,155 +1,60 @@
 :root {
-    --primary: #00ff41;
-    --my-msg: #004d1a;
-    --other-msg: #1a1a1a;
-    --bg: #050505;
-    --text: #e0e0e0;
+    --purple: #bc13fe; --blue: #00d2ff; --green: #00ff41; --red: #ff3131;
+    --primary: var(--purple);
+    --bg: #050005;
+    --glass: rgba(15, 0, 15, 0.85);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
 
-body { background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
 
-/* LOGIN SCREEN */
-#login-screen {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(circle, #001a05 0%, #050505 100%);
-}
+/* Temas dinámicos */
+.theme-blue { --primary: var(--blue); --bg: #000814; --glass: rgba(0, 20, 40, 0.85); }
+.theme-green { --primary: var(--green); --bg: #000800; --glass: rgba(0, 20, 0, 0.85); }
+.theme-red { --primary: var(--red); --bg: #0a0000; --glass: rgba(30, 0, 0, 0.85); }
 
-.login-box { text-align: center; width: 90%; max-width: 350px; }
-.login-box h1 { font-size: 2.5rem; letter-spacing: 5px; color: #fff; }
-.login-box h1 span { color: var(--primary); }
-.login-box p { color: #666; margin-bottom: 30px; font-size: 0.8rem; text-transform: uppercase; }
+#matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.2; }
 
-input[type="text"] {
-    width: 100%;
-    padding: 15px;
-    background: #111;
-    border: 1px solid #333;
-    color: var(--primary);
+.screen { height: 100vh; display: flex; flex-direction: column; padding: 20px; }
+
+.glass-card {
+    background: var(--glass);
+    border: 1px solid var(--primary);
+    padding: 30px;
     border-radius: 8px;
-    margin-bottom: 15px;
-    outline: none;
+    box-shadow: 0 0 20px rgba(188, 19, 254, 0.2);
+    max-width: 400px; margin: auto; text-align: center;
 }
 
-button {
-    width: 100%;
-    padding: 15px;
-    background: var(--primary);
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
+h1 { color: var(--primary); text-shadow: 0 0 10px var(--primary); margin-bottom: 10px; }
+
+input {
+    width: 100%; padding: 12px; margin: 10px 0;
+    background: rgba(0,0,0,0.5); border: 1px solid var(--primary);
+    color: #fff; outline: none;
 }
 
-/* CHAT SCREEN */
-#chat-screen {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+.btn-main {
+    width: 100%; padding: 12px; background: var(--primary);
+    color: #000; border: none; font-weight: bold; cursor: pointer;
 }
 
-.chat-header {
-    padding: 15px 20px;
-    background: rgba(15, 15, 15, 0.9);
-    border-bottom: 1px solid #222;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+/* Chat Styles */
+#chat-box { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; }
 
-.online-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px var(--primary); }
-
-#chat-box {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    background-image: linear-gradient(rgba(0, 255, 65, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 65, 0.02) 1px, transparent 1px);
-    background-size: 30px 30px;
-}
-
-/* BURBUJAS DE MENSAJE */
 .message {
-    max-width: 80%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 0.95rem;
-    position: relative;
-    animation: fadeIn 0.3s ease;
-    line-height: 1.4;
+    max-width: 80%; padding: 10px 15px; margin: 5px 0; border-radius: 5px;
+    font-size: 0.9rem; position: relative;
+}
+.mine { align-self: flex-end; background: var(--primary); color: #000; }
+.other { align-self: flex-start; background: rgba(255,255,255,0.1); border: 1px solid var(--primary); }
+
+.chat-item {
+    background: var(--glass); border: 1px solid var(--primary);
+    padding: 20px; margin-top: 15px; display: flex; justify-content: space-between; cursor: pointer;
 }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.message .msg-user {
-    display: block;
-    font-size: 0.7rem;
-    font-weight: bold;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    color: var(--primary);
-}
-
-/* Mis mensajes (Derecha) */
-.message.mine {
-    align-self: flex-end;
-    background: linear-gradient(135deg, var(--my-msg), #002b0f);
-    border: 1px solid rgba(0, 255, 65, 0.2);
-    border-bottom-right-radius: 4px;
-    color: #fff;
-}
-
-/* Mensajes de otros (Izquierda) */
-.message.other {
-    align-self: flex-start;
-    background: var(--other-msg);
-    border: 1px solid #333;
-    border-bottom-left-radius: 4px;
-}
-
-/* ÁREA DE ENTRADA */
-.input-area {
-    padding: 15px;
-    background: #0f0f0f;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-#message-input { margin-bottom: 0; flex: 1; background: #1a1a1a; border-radius: 25px; padding: 12px 20px; }
-
-#btn-enviar { width: 50px; height: 50px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-/* Estilo para el indicador de escribiendo */
-#typing-indicator {
-    padding: 5px 20px;
-    font-size: 0.75rem;
-    color: var(--primary);
-    font-style: italic;
-    height: 25px; /* Altura fija para que no salte el chat */
-    background: transparent;
-    opacity: 0.8;
-}
-
-/* Animación de puntos */
-#typing-indicator::after {
-    content: '';
-    animation: dots 1.5s infinite;
-}
-
-@keyframes dots {
-    0% { content: ''; }
-    33% { content: '.'; }
-    66% { content: '..'; }
-    100% { content: '...'; }
-}
-/* Scrollbar personalizada */
-#chat-box::-webkit-scrollbar { width: 5px; }
-#chat-box::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+.color-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; margin: 5px; }
+.purple { background: var(--purple); } .blue { background: var(--blue); } 
+.green { background: var(--green); } .red { background: var(--red); }
