@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostChat v5.3 | Stable</title>
+    <title>GhostChat v5.5 | Secure Protocol</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -18,23 +18,77 @@
     <div id="login-screen" class="screen" style="display:none">
         <div class="glass-card">
             <h1>GHOST<span>CHAT</span></h1>
-            <input type="text" id="username" placeholder="Alias de Agente...">
+            <input type="text" id="username" placeholder="Tu Alias...">
             <div class="pass-wrapper">
                 <input type="password" id="chat-key" placeholder="Llave Maestra...">
                 <span id="toggle-pass" class="eye-btn">👁️</span>
             </div>
-            <button id="btn-entrar" class="btn-main">INICIAR SESIÓN</button>
+            <button id="btn-entrar" class="btn-main">CONECTAR</button>
         </div>
     </div>
 
     <div id="main-screen" class="screen" style="display:none">
         <nav class="top-nav">
-            <input type="text" id="search-input" placeholder="Buscar...">
+            <input type="text" id="search-input" placeholder="Buscar por Alias o ID (GHOST-)...">
             <button id="btn-config-nav" class="btn-settings-modern">⚙️</button>
         </nav>
-        <div class="chat-list">
-            <div class="chat-item" id="item-secure">🔐 Sala Privada Cifrada</div>
-            <div class="chat-item" id="item-normal">💬 Canal Público</div>
+        <div class="chat-list" id="chat-items-container">
+            <div class="chat-item" data-search="sala privada cifrada secure" id="item-secure">
+                <div class="chat-info">
+                    <b>🔐 Sala Privada Cifrada</b><br>
+                    <small>ID: SERVER-SECURE</small>
+                </div>
+            </div>
+            <div class="chat-item" data-search="canal abierto publico normal" id="item-normal">
+                <div class="chat-info">
+                    <b>💬 Canal Abierto</b><br>
+                    <small>ID: SERVER-PUBLIC</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="config-screen" class="screen" style="display:none">
+        <div class="config-panel glass-card">
+            <h2>PROTOCOLOS DE AGENTE</h2>
+            
+            <div class="user-profile-data">
+                <p>Alias: <b id="conf-nick">--</b></p>
+                <p>ID Único: <code id="conf-id">--</code></p>
+            </div>
+
+            <div class="ip-routes">
+                <p>🛡️ Rutas de Descentralización (Activas):</p>
+                <ul id="route-list">
+                    <li>🟢 Node-Alpha: 192.168.X.101</li>
+                    <li>🟢 Node-Beta: 45.22.XX.12</li>
+                    <li>🟢 Node-Proxy: 104.18.XX.5</li>
+                    <li>🟢 Node-Ghost: Hidden</li>
+                </ul>
+            </div>
+
+            <div class="privacy-settings">
+                <h3>Privacidad y Hardware</h3>
+                <label><input type="checkbox" id="check-mic"> Activar Micrófono</label>
+                <label><input type="checkbox" id="check-read"> Confirmación de Lectura</label>
+                <label><input type="checkbox" id="check-typing"> Indicadores de Escritura</label>
+                <label><input type="checkbox" id="check-ortho"> Revisión de Ortografía</label>
+            </div>
+
+            <div class="auto-delete">
+                <h3>Auto-Eliminación</h3>
+                <select id="delete-timer">
+                    <option value="off">Desactivado</option>
+                    <option value="24h">Borrar tras 24hs</option>
+                    <option value="30d">Borrar tras 1 mes</option>
+                </select>
+            </div>
+
+            <label>Color de Interfaz:</label>
+            <input type="color" id="color-picker">
+
+            <button id="btn-logout" class="btn-main" style="background:#ff4444; color:white">ELIMINAR RASTROS (LOGOUT)</button>
+            <button id="btn-cerrar-config" class="btn-main">GUARDAR Y VOLVER</button>
         </div>
     </div>
 
@@ -45,19 +99,8 @@
         </header>
         <div id="chat-box"></div>
         <div class="input-area">
-            <input type="text" id="message-input" placeholder="Mensaje...">
+            <input type="text" id="message-input" placeholder="Escribe aquí...">
             <button id="btn-enviar">ENVIAR</button>
-        </div>
-    </div>
-
-    <div id="config-screen" class="screen" style="display:none">
-        <div class="glass-card">
-            <h2>CONFIGURACIÓN</h2>
-            <p>ID: <code id="conf-id">--</code></p>
-            <label>Color Interfaz:</label>
-            <input type="color" id="color-picker">
-            <button id="btn-cerrar-config" class="btn-main">VOLVER</button>
-            <button id="btn-logout" class="btn-main" style="background:#ff4444">CERRAR SESIÓN</button>
         </div>
     </div>
 
