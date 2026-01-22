@@ -3,35 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostChat v4.0 | Cyber Security</title>
+    <title>GhostChat v4.1 | Private Messaging</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-purple">
+<body>
     <canvas id="matrix-canvas"></canvas>
 
     <div id="login-screen" class="screen">
         <div class="glass-card">
             <h1>GHOST<span>CHAT</span></h1>
-            <p class="tagline">Protocolo de Cifrado AES-256</p>
-            <input type="text" id="username" placeholder="Tu Alias de Agente..." autocomplete="off">
-            <input type="password" id="chat-key" placeholder="Llave de Cifrado Maestra..." autocomplete="off">
-            <button id="btn-entrar" class="btn-main">ESTABLECER CONEXIÓN</button>
+            <p class="tagline">Mensajes encriptados de extremo a extremo</p>
+            <input type="text" id="username" placeholder="Tu Alias..." autocomplete="off">
+            <input type="password" id="chat-key" placeholder="Llave Maestra..." autocomplete="off">
+            <button id="btn-entrar" class="btn-main">ACCEDER AL CANAL</button>
         </div>
     </div>
 
     <div id="main-screen" class="screen" style="display: none;">
         <nav class="top-nav">
             <span class="brand">GHOST_NET</span>
-            <button id="btn-config" class="btn-icon">⚙️</button>
+            <button id="btn-config" class="btn-settings">
+                <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.97 21.68,8.76L19.68,5.3C19.58,5.09 19.33,5.03 19.12,5.1L16.63,6.12C16.11,5.72 15.53,5.38 14.92,5.13L14.54,2.46C14.5,2.24 14.32,2.08 14.1,2.08H10.1C9.88,2.08 9.7,2.24 9.66,2.46L9.28,5.13C8.67,5.38 8.09,5.72 7.57,6.12L5.08,5.1C4.87,5.03 4.62,5.09 4.52,5.3L2.52,8.76C2.42,8.97 2.47,9.22 2.66,9.37L4.77,11C4.73,11.34 4.7,11.67 4.7,12C4.7,12.33 4.73,12.65 4.77,12.97L2.66,14.63C2.47,14.78 2.42,15.03 2.52,15.24L4.52,18.7C4.62,18.91 4.87,18.97 5.08,18.9L7.57,17.88C8.09,18.28 8.67,18.62 9.28,18.87L9.66,21.54C9.7,21.76 9.88,21.92 10.1,21.92H14.1C14.32,21.92 14.5,21.76 14.54,21.54L14.92,18.87C15.53,18.62 16.11,18.28 16.63,17.88L19.12,18.9C19.33,18.97 19.58,18.91 19.68,18.7L21.68,15.24C21.78,15.03 21.73,14.78 21.54,14.63L19.43,12.97Z" /></svg>
+            </button>
         </nav>
         
         <div class="chat-list">
-            <h2># Canales_Disponibles</h2>
-            <div class="chat-item active" onclick="showScreen('chat-screen')">
+            <div class="chat-item" onclick="showScreen('chat-screen')">
                 <div class="chat-info">
-                    <span class="chat-name">Canal_Principal_Cifrado</span>
-                    <span class="chat-status">Seguridad: Alta (AES)</span>
+                    <span class="chat-name"># Sala_Privada_Cifrada</span>
+                    <span class="chat-status">Sin registro de base de datos</span>
                 </div>
                 <span class="arrow">></span>
             </div>
@@ -41,49 +42,32 @@
     <div id="chat-screen" class="screen" style="display: none;">
         <header class="chat-header">
             <button onclick="showScreen('main-screen')" class="btn-back"> < VOLVER</button>
-            <div class="user-meta">
-                <span id="display-name">USUARIO</span>
-            </div>
+            <span id="display-name">USUARIO</span>
         </header>
-
         <div id="chat-box"></div>
-        <div id="typing-indicator"></div>
-
         <div class="input-area">
-            <input type="text" id="message-input" placeholder="Mensaje encriptado..." autocomplete="off">
+            <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
             <button id="btn-enviar">ENVIAR</button>
         </div>
     </div>
 
     <div id="config-screen" class="screen" style="display: none;">
-        <header class="chat-header">
-            <button onclick="showScreen('main-screen')" class="btn-back"> < CERRAR</button>
-            <h2>CONFIG_USER</h2>
-        </header>
-        
-        <div class="config-content glass-card">
+        <div class="glass-card">
+            <h2>PERSONALIZACIÓN</h2>
             <div class="config-group">
                 <label>Tu Alias:</label>
                 <input type="text" id="config-username">
             </div>
-            
             <div class="config-group">
-                <label>Alias Encriptado (Hash):</label>
+                <label>Identificador Encriptado:</label>
                 <code id="encrypted-nick">--</code>
             </div>
-
             <div class="config-group">
                 <label>Color de Interfaz:</label>
-                <div class="color-picker">
-                    <button class="color-dot purple" onclick="changeTheme('purple')"></button>
-                    <button class="color-dot blue" onclick="changeTheme('blue')"></button>
-                    <button class="color-dot green" onclick="changeTheme('green')"></button>
-                    <button class="color-dot red" onclick="changeTheme('red')"></button>
-                </div>
+                <input type="color" id="theme-color-picker" value="#bc13fe">
+                <p class="hint">Toca el recuadro para cambiar el color</p>
             </div>
-            
             <button id="btn-save-config" class="btn-main">GUARDAR CAMBIOS</button>
-            <p class="warning">Nota: Si borras los datos del navegador, se perderá la llave de acceso.</p>
         </div>
     </div>
 
