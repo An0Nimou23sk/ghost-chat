@@ -14,132 +14,84 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Variables de Estado
 let user = JSON.parse(localStorage.getItem('ghost_session')) || null;
 let currentChat = 'secure';
 
-// --- CONTROL DE PANTALLAS ---
-const showScreen = (id) => {
+// FUNCIÓN DE NAVEGACIÓN SEGURA
+function goTo(id) {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-    const target = document.getElementById(id);
-    if(target) target.style.display = 'flex';
-};
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'flex';
+}
 
-// --- INICIO DE LA APP ---
 window.addEventListener('DOMContentLoaded', () => {
-    // 1. Quitar Splash después de 2.5s
+    // 1. Quitar Splash obligatoriamente
     setTimeout(() => {
-        const splash = document.getElementById('splash-screen');
-        if(splash) splash.style.display = 'none';
-        
+        document.getElementById('splash-screen').style.display = 'none';
         if (user) {
-            initUserData();
-            showScreen('main-screen');
+            document.getElementById('conf-id').innerText = user.id;
+            goTo('main-screen');
         } else {
-            showScreen('login-screen');
+            goTo('login-screen');
         }
-    }, 2500);
+    }, 2000);
 
-    // 2. Vincular botón de Entrada
+    // 2. Eventos de Botones
     document.getElementById('btn-entrar').onclick = () => {
-        const nick = document.getElementById('username').value.trim();
-        const pass = document.getElementById('chat-key').value.trim();
-        
-        if (nick && pass) {
-            const idUnique = "GHOST-" + Math.floor(Math.random() * 900000 + 100000);
-            user = { nick, pass, id: idUnique, theme: '#bc13fe' };
+        const nick = document.getElementById('username').value;
+        const pass = document.getElementById('chat-key').value;
+        if(nick && pass) {
+            user = { nick, pass, id: "GHOST-"+Math.floor(Math.random()*999), theme: '#bc13fe' };
             localStorage.setItem('ghost_session', JSON.stringify(user));
-            initUserData();
-            showScreen('main-screen');
-        } else {
-            alert("Completa los datos de acceso.");
+            location.reload(); // Recargamos para limpiar cualquier error previo
         }
     };
 
-    // 3. Ojito de contraseña
-    document.getElementById('toggle-pass').onclick = () => {
-        const input = document.getElementById('chat-key');
-        input.type = input.type === 'password' ? 'text' : 'password';
-    };
+    document.getElementById('btn-sala-segura').onclick = () => openChat('secure');
+    document.getElementById('btn-sala-normal').onclick = () => openChat('normal');
+    document.getElementById('btn-volver').onclick = () => goTo('main-screen');
+    document.getElementById('btn-config-nav').onclick = () => goTo('config-screen');
+    document.getElementById('btn-cerrar-config').onclick = () => goTo('main-screen');
+    document.getElementById('btn-logout').onclick = () => { localStorage.clear(); location.reload(); };
 
-    // 4. Botones Navegación
-    document.getElementById('btn-sala-segura').onclick = () => startChat('secure');
-    document.getElementById('btn-sala-normal').onclick = () => startChat('normal');
-    document.getElementById('btn-volver').onclick = () => showScreen('main-screen');
-    document.getElementById('btn-config-nav').onclick = () => showScreen('config-screen');
-    document.getElementById('btn-cerrar-config').onclick = () => showScreen('main-screen');
-    
-    document.getElementById('btn-logout').onclick = () => {
-        localStorage.clear();
-        location.reload();
-    };
-
-    // 5. Envío de Mensajes
     document.getElementById('btn-enviar').onclick = () => {
         const input = document.getElementById('message-input');
-        const text = input.value.trim();
-        if(!text) return;
-
-        const encrypted = currentChat === 'secure' ? CryptoJS.AES.encrypt(text, user.pass).toString() : text;
-        
-        push(ref(db, 'mensajes_' + currentChat), {
-            sender: user.nick,
-            text: encrypted,
-            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-        });
+        if(!input.value) return;
+        const txt = currentChat === 'secure' ? CryptoJS.AES.encrypt(input.value, user.pass).toString() : input.value;
+        push(ref(db, 'mensajes_' + currentChat), { sender: user.nick, text: txt });
         input.value = "";
     };
 });
 
-const initUserData = () => {
-    document.getElementById('conf-nick').innerText = user.nick;
-    document.getElementById('conf-id').innerText = user.id;
-    if(user.theme) document.documentElement.style.setProperty('--primary', user.theme);
-};
-
-const startChat = (type) => {
+function openChat(type) {
     currentChat = type;
-    document.getElementById('chat-title').innerText = type === 'secure' ? 'Canal Cifrado' : 'Canal Abierto';
     document.getElementById('chat-box').innerHTML = "";
-    showScreen('chat-screen');
-    
-    // Escuchar mensajes de la sala específica
+    goTo('chat-screen');
     onChildAdded(ref(db, 'mensajes_' + currentChat), (data) => {
-        renderMessage(data.val());
+        const m = data.val();
+        let finalTxt = m.text;
+        if(currentChat === 'secure') {
+            try { finalTxt = CryptoJS.AES.decrypt(m.text, user.pass).toString(CryptoJS.enc.Utf8) || "[Cifrado]"; } 
+            catch(e) { finalTxt = "[Error]"; }
+        }
+        const div = document.createElement('div');
+        div.className = `message ${m.sender === user?.nick ? 'mine' : 'other'}`;
+        div.innerHTML = `<b>${m.sender}</b><br>${finalTxt}`;
+        document.getElementById('chat-box').appendChild(div);
     });
-};
+}
 
-const renderMessage = (m) => {
-    let content = m.text;
-    if(currentChat === 'secure') {
-        try {
-            const bytes = CryptoJS.AES.decrypt(m.text, user.pass);
-            content = bytes.toString(CryptoJS.enc.Utf8);
-            if(!content) content = "[Cifrado: Llave Inválida]";
-        } catch(e) { content = "[Error de Cifrado]"; }
-    }
-
-    const div = document.createElement('div');
-    div.className = `message ${m.sender === user.nick ? 'mine' : 'other'}`;
-    div.innerHTML = `<strong>${m.sender}</strong><br>${content}<br><small style="font-size:0.6rem; opacity:0.5">${m.time}</small>`;
-    const box = document.getElementById('chat-box');
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-};
-
-// --- FONDO MATRIX ---
+// MATRIX
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 const drops = Array(Math.floor(canvas.width/20)).fill(1);
-function draw() {
+setInterval(() => {
     ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = user?.theme || "#bc13fe";
-    ctx.font = "15px monospace";
+    ctx.fillStyle = "#bc13fe";
     drops.forEach((y,i) => {
         ctx.fillText(String.fromCharCode(Math.random()*128), i*20, y*20);
         if(y*20 > canvas.height && Math.random() > 0.975) drops[i]=0;
         drops[i]++;
     });
-}
-setInterval(draw, 50);
+}, 50);
