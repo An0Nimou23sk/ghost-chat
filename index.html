@@ -3,38 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostChat v2.1 | Secure Messenger</title>
+    <title>GhostChat v4.0 | Cyber Security</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="theme-purple">
+    <canvas id="matrix-canvas"></canvas>
 
-    <div id="login-screen">
-        <div class="login-box">
+    <div id="login-screen" class="screen">
+        <div class="glass-card">
             <h1>GHOST<span>CHAT</span></h1>
-            <p>Acceso al Protocolo Seguro</p>
-            <input type="text" id="username" placeholder="Ingresa tu Alias..." autocomplete="off">
-            <button id="btn-entrar">ESTABLECER CONEXIÓN</button>
+            <p class="tagline">Protocolo de Cifrado AES-256</p>
+            <input type="text" id="username" placeholder="Tu Alias de Agente..." autocomplete="off">
+            <input type="password" id="chat-key" placeholder="Llave de Cifrado Maestra..." autocomplete="off">
+            <button id="btn-entrar" class="btn-main">ESTABLECER CONEXIÓN</button>
         </div>
     </div>
 
-    <div id="chat-screen" style="display: none;">
+    <div id="main-screen" class="screen" style="display: none;">
+        <nav class="top-nav">
+            <span class="brand">GHOST_NET</span>
+            <button id="btn-config" class="btn-icon">⚙️</button>
+        </nav>
+        
+        <div class="chat-list">
+            <h2># Canales_Disponibles</h2>
+            <div class="chat-item active" onclick="showScreen('chat-screen')">
+                <div class="chat-info">
+                    <span class="chat-name">Canal_Principal_Cifrado</span>
+                    <span class="chat-status">Seguridad: Alta (AES)</span>
+                </div>
+                <span class="arrow">></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-screen" class="screen" style="display: none;">
         <header class="chat-header">
-            <div class="user-info">
-                <div class="online-dot"></div>
+            <button onclick="showScreen('main-screen')" class="btn-back"> < VOLVER</button>
+            <div class="user-meta">
                 <span id="display-name">USUARIO</span>
             </div>
-            <div class="app-status">ENCRIPTADO</div>
         </header>
 
         <div id="chat-box"></div>
-
         <div id="typing-indicator"></div>
 
         <div class="input-area">
-            <input type="text" id="message-input" placeholder="Escribe un mensaje cifrado..." autocomplete="off">
-            <button id="btn-enviar">
-                <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg>
-            </button>
+            <input type="text" id="message-input" placeholder="Mensaje encriptado..." autocomplete="off">
+            <button id="btn-enviar">ENVIAR</button>
+        </div>
+    </div>
+
+    <div id="config-screen" class="screen" style="display: none;">
+        <header class="chat-header">
+            <button onclick="showScreen('main-screen')" class="btn-back"> < CERRAR</button>
+            <h2>CONFIG_USER</h2>
+        </header>
+        
+        <div class="config-content glass-card">
+            <div class="config-group">
+                <label>Tu Alias:</label>
+                <input type="text" id="config-username">
+            </div>
+            
+            <div class="config-group">
+                <label>Alias Encriptado (Hash):</label>
+                <code id="encrypted-nick">--</code>
+            </div>
+
+            <div class="config-group">
+                <label>Color de Interfaz:</label>
+                <div class="color-picker">
+                    <button class="color-dot purple" onclick="changeTheme('purple')"></button>
+                    <button class="color-dot blue" onclick="changeTheme('blue')"></button>
+                    <button class="color-dot green" onclick="changeTheme('green')"></button>
+                    <button class="color-dot red" onclick="changeTheme('red')"></button>
+                </div>
+            </div>
+            
+            <button id="btn-save-config" class="btn-main">GUARDAR CAMBIOS</button>
+            <p class="warning">Nota: Si borras los datos del navegador, se perderá la llave de acceso.</p>
         </div>
     </div>
 
