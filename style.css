@@ -2,29 +2,41 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 body { background: var(--bg); color: #fff; overflow: hidden; }
 
-/* Splash */
-#splash-screen { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-.ghost-logo { font-size: 80px; animation: pulse 2s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-/* Layout */
+/* Matrix Canvas */
 #matrix-canvas { position: fixed; inset: 0; z-index: -1; opacity: 0.15; }
-.screen { height: 100vh; display: flex; flex-direction: column; padding: 15px; }
 
-/* Login Card */
-.glass-card { background: var(--glass); border: 1px solid var(--primary); padding: 30px; border-radius: 20px; margin: auto; width: 100%; max-width: 350px; text-align: center; }
-.pass-container { position: relative; }
-.eye-icon { position: absolute; right: 15px; top: 22px; cursor: pointer; color: var(--primary); }
+/* Splash Screen */
+#splash-screen { 
+    position: fixed; inset: 0; background: #000; z-index: 9999; 
+    display: flex; flex-direction: column; justify-content: center; align-items: center; 
+}
+.ghost-logo { font-size: 80px; animation: pulse 2s infinite; }
+.glitch { color: var(--primary); text-shadow: 0 0 10px var(--primary); margin-top: 15px; }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.6; } }
 
-input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid var(--primary); color: #fff; border-radius: 10px; }
-.btn-main { background: var(--primary); width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+/* Pantallas */
+.screen { height: 100vh; display: flex; flex-direction: column; padding: 15px; width: 100%; }
+
+/* Cards */
+.glass-card { 
+    background: var(--glass); border: 1px solid var(--primary); 
+    padding: 30px; border-radius: 20px; margin: auto; 
+    width: 100%; max-width: 360px; box-shadow: 0 0 30px rgba(188, 19, 254, 0.2); 
+}
+.divider { margin: 15px 0; opacity: 0.3; border: 0; border-top: 1px solid var(--primary); }
+
+/* Inputs */
+input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid var(--primary); color: #fff; border-radius: 10px; outline: none; }
+.btn-main { background: var(--primary); color: #000; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+.btn-main:hover { box-shadow: 0 0 20px var(--primary); }
+.btn-main.logout { background: #ff3131; color: #fff; margin-top: 20px; }
 
 /* Chat */
-#chat-box { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 10px; }
-.message { max-width: 80%; padding: 10px; margin: 5px 0; border-radius: 10px; line-height: 1.4; }
-.mine { align-self: flex-end; background: var(--primary); color: #000; }
-.other { align-self: flex-start; background: rgba(255,255,255,0.1); border: 1px solid var(--primary); }
-.msg-time { font-size: 0.7rem; display: block; margin-top: 5px; opacity: 0.7; }
+#chat-box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; }
+.message { max-width: 80%; padding: 12px; margin: 6px 0; border-radius: 12px; font-size: 0.95rem; }
+.mine { align-self: flex-end; background: var(--primary); color: #000; border-bottom-right-radius: 2px; }
+.other { align-self: flex-start; background: rgba(255,255,255,0.1); border: 1px solid var(--primary); border-bottom-left-radius: 2px; }
 
 .input-area { display: flex; gap: 10px; padding: 10px; background: var(--glass); border-top: 1px solid var(--primary); }
-.chat-item { background: var(--glass); border: 1px solid #333; padding: 15px; border-radius: 10px; margin-top: 10px; cursor: pointer; display: flex; gap: 15px; }
+.chat-item { background: var(--glass); border: 1px solid #333; padding: 18px; border-radius: 12px; margin-top: 12px; cursor: pointer; display: flex; gap: 15px; align-items: center; }
+.chat-item:hover { border-color: var(--primary); background: rgba(188,19,254,0.1); }
