@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD0PZK3Prt5CufdQyBOTrsGFPxYzt0l_XU",
@@ -15,27 +15,25 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const dbRef = ref(db, 'mensajes');
 
-// Variables Globales
 let user = localStorage.getItem('ghost_user') || "";
 let chatKey = localStorage.getItem('ghost_key') || "";
-let currentTheme = localStorage.getItem('ghost_theme') || "purple";
+let userColor = localStorage.getItem('ghost_color') || "#bc13fe";
 
-// Cambiar pantallas
+// Función para actualizar color dinámicamente
+const updateThemeColor = (color) => {
+    document.documentElement.style.setProperty('--primary', color);
+    localStorage.setItem('ghost_color', color);
+};
+
 window.showScreen = (screenId) => {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
     document.getElementById(screenId).style.display = 'flex';
 };
 
-// Cambiar Temas
-window.changeTheme = (color) => {
-    document.body.className = `theme-${color}`;
-    localStorage.setItem('ghost_theme', color);
-};
-
-// Al iniciar, cargar sesión si existe
+// Al iniciar
 if(user && chatKey) {
+    updateThemeColor(userColor);
     document.getElementById('display-name').innerText = user;
-    changeTheme(currentTheme);
     showScreen('main-screen');
 }
 
@@ -48,26 +46,29 @@ document.getElementById('btn-entrar').onclick = () => {
         localStorage.setItem('ghost_user', nick);
         localStorage.setItem('ghost_key', key);
         document.getElementById('display-name').innerText = user;
+        updateThemeColor(userColor);
         showScreen('main-screen');
     }
 };
 
-// Configuración
+// Abrir Configuración
 document.getElementById('btn-config').onclick = () => {
     document.getElementById('config-username').value = user;
-    // Mostrar Alias Encriptado (SHA256 simulado con MD5 o similar para visual)
-    document.getElementById('encrypted-nick').innerText = CryptoJS.MD5(user).toString().substring(0,16);
+    document.getElementById('theme-color-picker').value = userColor;
+    document.getElementById('encrypted-nick').innerText = CryptoJS.MD5(user).toString();
     showScreen('config-screen');
 };
 
+// Guardar Configuración
 document.getElementById('btn-save-config').onclick = () => {
     user = document.getElementById('config-username').value;
+    userColor = document.getElementById('theme-color-picker').value;
     localStorage.setItem('ghost_user', user);
-    document.getElementById('display-name').innerText = user;
+    updateThemeColor(userColor);
     showScreen('main-screen');
 };
 
-// Enviar Mensaje Cifrado
+// Chat Logic
 document.getElementById('btn-enviar').onclick = () => {
     const text = document.getElementById('message-input').value;
     if(text) {
@@ -77,37 +78,36 @@ document.getElementById('btn-enviar').onclick = () => {
     }
 };
 
-// Recibir y Descifrar
 onChildAdded(dbRef, (data) => {
     const msg = data.val();
     let decrypted = "";
     try {
         const bytes = CryptoJS.AES.decrypt(msg.texto, chatKey);
         decrypted = bytes.toString(CryptoJS.enc.Utf8);
-        if(!decrypted) decrypted = "[Cifrado: Llave Inválida]";
-    } catch(e) { decrypted = "[Error de Cifrado]"; }
+        if(!decrypted) decrypted = "[Mensaje Cifrado]";
+    } catch(e) { decrypted = "[Error de Llave]"; }
 
     const div = document.createElement('div');
     div.className = `message ${msg.usuario === user ? 'mine' : 'other'}`;
-    div.innerHTML = `<strong>${msg.usuario}:</strong> <br> ${decrypted}`;
+    div.innerHTML = `<strong>${msg.usuario}</strong><br>${decrypted}`;
     document.getElementById('chat-box').appendChild(div);
     document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
 });
 
-// Matrix Background (Simplificado)
+// Matrix Background
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-const columns = canvas.width / 15;
+const columns = canvas.width / 20;
 const drops = Array(Math.floor(columns)).fill(1);
 function draw() {
     ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary');
+    ctx.fillStyle = userColor;
     ctx.font = "15px monospace";
     drops.forEach((y, i) => {
         const text = String.fromCharCode(Math.random() * 128);
-        ctx.fillText(text, i * 15, y * 15);
-        if (y * 15 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        ctx.fillText(text, i * 20, y * 20);
+        if (y * 20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
     });
 }
