@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostChat v5.2 | Final Edition</title>
+    <title>GhostChat v5.3 | Stable</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -18,43 +18,34 @@
     <div id="login-screen" class="screen" style="display:none">
         <div class="glass-card">
             <h1>GHOST<span>CHAT</span></h1>
-            <p class="tagline">Bienvenido al Protocolo de Privacidad</p>
-            <input type="text" id="username" placeholder="Tu Alias de Agente..." autocomplete="off">
+            <input type="text" id="username" placeholder="Alias de Agente...">
             <div class="pass-wrapper">
-                <input type="password" id="chat-key" placeholder="Llave Maestra de Cifrado..." autocomplete="off">
+                <input type="password" id="chat-key" placeholder="Llave Maestra...">
                 <span id="toggle-pass" class="eye-btn">👁️</span>
             </div>
-            <button id="btn-entrar" class="btn-main">ESTABLECER CONEXIÓN</button>
+            <button id="btn-entrar" class="btn-main">INICIAR SESIÓN</button>
         </div>
     </div>
 
     <div id="main-screen" class="screen" style="display:none">
         <nav class="top-nav">
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Buscar Alias o ID #...">
-            </div>
-            <button id="btn-config-nav" class="btn-settings-modern">
-                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.97 21.68,8.76L19.68,5.3C19.58,5.09 19.33,5.03 19.12,5.1L16.63,6.12C16.11,5.72 15.53,5.38 14.92,5.13L14.54,2.46C14.5,2.24 14.32,2.08 14.1,2.08H10.1C9.88,2.08 9.7,2.24 9.66,2.46L9.28,5.13C8.67,5.38 8.09,5.72 7.57,6.12L5.08,5.1C4.87,5.03 4.62,5.09 4.52,5.3L2.52,8.76C2.42,8.97 2.47,9.22 2.66,9.37L4.77,11C4.73,11.34 4.7,11.67 4.7,12C4.7,12.33 4.73,12.65 4.77,12.97L2.66,14.63C2.47,14.78 2.42,15.03 2.52,15.24L4.52,18.7C4.62,18.91 4.87,18.97 5.08,18.9L7.57,17.88C8.09,18.28 8.67,18.62 9.28,18.87L9.66,21.54C9.7,21.76 9.88,21.92 10.1,21.92H14.1C14.32,21.92 14.5,21.76 14.54,21.54L14.92,18.87C15.53,18.62 16.11,18.28 16.63,17.88L19.12,18.9C19.33,18.97 19.58,18.91 19.68,18.7L21.68,15.24C21.78,15.03 21.73,14.78 21.54,14.63L19.43,12.97Z" /></svg>
-            </button>
+            <input type="text" id="search-input" placeholder="Buscar...">
+            <button id="btn-config-nav" class="btn-settings-modern">⚙️</button>
         </nav>
-        <div id="chats-container" class="chat-list">
-            <div class="chat-item" onclick="openChat('secure')">
-                <div class="chat-meta">🔐 <b>Sala Privada Cifrada</b><br><small>E2EE - Sin registro</small></div>
-            </div>
-            <div class="chat-item" onclick="openChat('normal')">
-                <div class="chat-meta">💬 <b>Canal Público</b><br><small>Uso General</small></div>
-            </div>
+        <div class="chat-list">
+            <div class="chat-item" id="item-secure">🔐 Sala Privada Cifrada</div>
+            <div class="chat-item" id="item-normal">💬 Canal Público</div>
         </div>
     </div>
 
     <div id="chat-screen" class="screen" style="display:none">
         <header class="chat-header">
-            <button onclick="goTo('main-screen')" class="back-btn"> < VOLVER</button>
+            <button id="btn-volver" class="back-btn"> < VOLVER</button>
             <h3 id="chat-title-display">Canal</h3>
         </header>
         <div id="chat-box"></div>
         <div class="input-area">
-            <input type="text" id="message-input" placeholder="Mensaje encriptado...">
+            <input type="text" id="message-input" placeholder="Mensaje...">
             <button id="btn-enviar">ENVIAR</button>
         </div>
     </div>
@@ -62,15 +53,11 @@
     <div id="config-screen" class="screen" style="display:none">
         <div class="glass-card">
             <h2>CONFIGURACIÓN</h2>
-            <div class="config-info">
-                <p>Alias: <b id="conf-nick">--</b></p>
-                <p>ID: <code id="conf-id">--</code></p>
-            </div>
-            <hr>
-            <label>Color de Interfaz:</label>
+            <p>ID: <code id="conf-id">--</code></p>
+            <label>Color Interfaz:</label>
             <input type="color" id="color-picker">
-            <button id="btn-logout" class="btn-main" style="background:#ff4444">BORRAR TODO</button>
-            <button onclick="goTo('main-screen')" class="btn-main">CERRAR</button>
+            <button id="btn-cerrar-config" class="btn-main">VOLVER</button>
+            <button id="btn-logout" class="btn-main" style="background:#ff4444">CERRAR SESIÓN</button>
         </div>
     </div>
 
