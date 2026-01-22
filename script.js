@@ -13,101 +13,136 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const dbRef = ref(db, 'mensajes');
 
-let user = localStorage.getItem('ghost_user') || "";
-let chatKey = localStorage.getItem('ghost_key') || "";
-let userColor = localStorage.getItem('ghost_color') || "#bc13fe";
+// Estados locales persistentes
+let user = JSON.parse(localStorage.getItem('ghost_session')) || null;
+let currentChat = 'secure';
 
-// Función para actualizar color dinámicamente
-const updateThemeColor = (color) => {
-    document.documentElement.style.setProperty('--primary', color);
-    localStorage.setItem('ghost_color', color);
-};
+// 1. Splash Screen Logic
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('splash-screen').style.fadeOut = "slow";
+        document.getElementById('splash-screen').style.display = 'none';
+        if (user) showScreen('main-screen');
+        else showScreen('login-screen');
+        initApp();
+    }, 3000);
+});
 
-window.showScreen = (screenId) => {
+// 2. Navegación
+window.showScreen = (id) => {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-    document.getElementById(screenId).style.display = 'flex';
+    document.getElementById(id).style.display = 'flex';
 };
 
-// Al iniciar
-if(user && chatKey) {
-    updateThemeColor(userColor);
-    document.getElementById('display-name').innerText = user;
-    showScreen('main-screen');
-}
-
-// Login
+// 3. Login e Identificador Único
 document.getElementById('btn-entrar').onclick = () => {
     const nick = document.getElementById('username').value;
-    const key = document.getElementById('chat-key').value;
-    if(nick && key) {
-        user = nick; chatKey = key;
-        localStorage.setItem('ghost_user', nick);
-        localStorage.setItem('ghost_key', key);
-        document.getElementById('display-name').innerText = user;
-        updateThemeColor(userColor);
+    const pass = document.getElementById('chat-key').value;
+    if(nick && pass) {
+        const idUnique = "GHOST-" + Math.floor(Math.random() * 1000000);
+        user = { nick, pass, id: idUnique, theme: '#bc13fe' };
+        localStorage.setItem('ghost_session', JSON.stringify(user));
+        initApp();
         showScreen('main-screen');
     }
 };
 
-// Abrir Configuración
-document.getElementById('btn-config').onclick = () => {
-    document.getElementById('config-username').value = user;
-    document.getElementById('theme-color-picker').value = userColor;
-    document.getElementById('encrypted-nick').innerText = CryptoJS.MD5(user).toString();
-    showScreen('config-screen');
+// 4. Ver/Ocultar Contraseña
+document.getElementById('toggle-pass').onclick = function() {
+    const input = document.getElementById('chat-key');
+    input.type = input.type === 'password' ? 'text' : 'password';
 };
 
-// Guardar Configuración
-document.getElementById('btn-save-config').onclick = () => {
-    user = document.getElementById('config-username').value;
-    userColor = document.getElementById('theme-color-picker').value;
-    localStorage.setItem('ghost_user', user);
-    updateThemeColor(userColor);
-    showScreen('main-screen');
-};
+function initApp() {
+    if(!user) return;
+    document.getElementById('conf-nick').innerText = user.nick;
+    document.getElementById('conf-id').innerText = user.id;
+    document.getElementById('display-name').innerText = user.nick;
+}
 
-// Chat Logic
-document.getElementById('btn-enviar').onclick = () => {
+// 5. Configuración
+document.getElementById('btn-config-nav').onclick = () => showScreen('config-screen');
+
+// 6. Enviar Mensaje con Multimedia (Simulada via Base64 para E2EE)
+document.getElementById('btn-enviar').onclick = async () => {
     const text = document.getElementById('message-input').value;
-    if(text) {
-        const encrypted = CryptoJS.AES.encrypt(text, chatKey).toString();
-        push(dbRef, { usuario: user, texto: encrypted, tiempo: Date.now() });
+    const fileInput = document.getElementById('file-input');
+    let mediaData = null;
+
+    if (fileInput.files[0]) {
+        mediaData = await toBase64(fileInput.files[0]);
+    }
+
+    if (text || mediaData) {
+        const msgObj = {
+            sender: user.nick,
+            text: currentChat === 'secure' ? CryptoJS.AES.encrypt(text, user.pass).toString() : text,
+            media: mediaData,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+            date: new Date().toLocaleDateString()
+        };
+        push(ref(db, 'mensajes_' + currentChat), msgObj);
         document.getElementById('message-input').value = "";
+        fileInput.value = "";
     }
 };
 
-onChildAdded(dbRef, (data) => {
-    const msg = data.val();
-    let decrypted = "";
-    try {
-        const bytes = CryptoJS.AES.decrypt(msg.texto, chatKey);
-        decrypted = bytes.toString(CryptoJS.enc.Utf8);
-        if(!decrypted) decrypted = "[Mensaje Cifrado]";
-    } catch(e) { decrypted = "[Error de Llave]"; }
+// 7. Cargar Chat
+window.enterChat = (type) => {
+    currentChat = type;
+    document.getElementById('chat-title').innerText = type === 'secure' ? 'Canal Cifrado' : 'Canal Normal';
+    document.getElementById('chat-box').innerHTML = ""; // Limpiar vista
+    showScreen('chat-screen');
+    
+    onChildAdded(ref(db, 'mensajes_' + currentChat), (data) => {
+        const m = data.val();
+        renderMessage(m);
+    });
+};
+
+function renderMessage(m) {
+    let content = m.text;
+    if(currentChat === 'secure') {
+        try {
+            content = CryptoJS.AES.decrypt(m.text, user.pass).toString(CryptoJS.enc.Utf8) || "[Contenido Cifrado]";
+        } catch(e) { content = "[Error de Decifrado]"; }
+    }
 
     const div = document.createElement('div');
-    div.className = `message ${msg.usuario === user ? 'mine' : 'other'}`;
-    div.innerHTML = `<strong>${msg.usuario}</strong><br>${decrypted}`;
+    div.className = `message ${m.sender === user.nick ? 'mine' : 'other'}`;
+    
+    let html = `<strong>${m.sender}</strong><br>${content}`;
+    if(m.media) {
+        if(m.media.includes('image')) html += `<br><img src="${m.media}" style="max-width:100%; border-radius:8px; margin-top:5px;">`;
+        if(m.media.includes('video')) html += `<br><video controls src="${m.media}" style="max-width:100%"></video>`;
+        if(m.media.includes('audio')) html += `<br><audio controls src="${m.media}"></audio>`;
+    }
+    html += `<span class="msg-time">${m.date} - ${m.time}</span>`;
+    
+    div.innerHTML = html;
     document.getElementById('chat-box').appendChild(div);
     document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+}
+
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
 });
 
 // Matrix Background
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-const columns = canvas.width / 20;
-const drops = Array(Math.floor(columns)).fill(1);
+const drops = Array(Math.floor(canvas.width/20)).fill(1);
 function draw() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = userColor;
-    ctx.font = "15px monospace";
-    drops.forEach((y, i) => {
-        const text = String.fromCharCode(Math.random() * 128);
-        ctx.fillText(text, i * 20, y * 20);
-        if (y * 20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = user?.theme || "#bc13fe";
+    drops.forEach((y,i) => {
+        ctx.fillText(String.fromCharCode(Math.random()*128), i*20, y*20);
+        if(y*20 > canvas.height && Math.random() > 0.975) drops[i]=0;
         drops[i]++;
     });
 }
