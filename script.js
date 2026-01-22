@@ -18,7 +18,6 @@ let usuarioActual = "";
 
 const sonidoNotificacion = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
 
-// ENTRAR AL CHAT
 document.getElementById('btn-entrar').addEventListener('click', () => {
     const inputUser = document.getElementById('username');
     if (inputUser.value.trim() !== "") {
@@ -29,7 +28,6 @@ document.getElementById('btn-entrar').addEventListener('click', () => {
     }
 });
 
-// FUNCIÓN DE ENVÍO
 function enviarMensaje() {
     const inputMsg = document.getElementById('message-input');
     const texto = inputMsg.value;
@@ -41,34 +39,28 @@ function enviarMensaje() {
             tiempo: Date.now()
         });
         inputMsg.value = "";
-        inputMsg.focus(); // Mantiene el cursor en el cuadro de texto
     }
 }
 
-// CLICK EN EL BOTÓN
-document.getElementById('btn-enviar').addEventListener('click', (e) => {
-    e.preventDefault();
-    enviarMensaje();
-});
-
-// TECLA ENTER (Solución aquí)
+document.getElementById('btn-enviar').addEventListener('click', enviarMensaje);
 document.getElementById('message-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-        e.preventDefault(); // Evita que la página se refresque
+        e.preventDefault();
         enviarMensaje();
     }
 });
 
-// RECIBIR MENSAJES
 onChildAdded(dbRef, (data) => {
     const msgData = data.val();
     const chatBox = document.getElementById('chat-box');
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message');
     
+    // Asignar clase según el autor
     if (msgData.usuario === usuarioActual) {
         msgDiv.classList.add('mine');
     } else {
+        msgDiv.classList.add('other');
         sonidoNotificacion.play().catch(() => {});
     }
 
